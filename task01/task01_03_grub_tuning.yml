@@ -1,0 +1,51 @@
+---
+- name: Tune Grub config and write changes.
+  hosts: control.example.com
+
+  tasks:
+  - name: Add parameter net.ifnames=0 if it's absent
+    lineinfile:
+      state: present
+      dest: /etc/default/grub
+      backrefs: yes
+      regexp: '^(GRUB_CMDLINE_LINUX=(?!.* net.ifnames)\"[^\"]+)(\".*)'
+      line: '\1 net.ifnames=0\2'
+    notify:
+    - Update Grub2 config file
+
+  - name: Check if parameter net.ifnames has "0" value
+    replace:
+      path: /etc/default/grub
+      regexp: '^(GRUB_CMDLINE_LINUX=(?:(?![" ]{{ option | regex_escape }}=).)*)(?:[" ]{{ option | regex_escape }}=\S+)?(.*")$'
+      replace: '\1 {{ option }}={{ value }}\2'
+    vars:
+      option: net.ifnames
+      value: 0
+    notify:
+    - Update Grub2 config file
+
+  - name: Add parameter biosdevname=0 if it's absent
+    lineinfile:
+      state: present
+      dest: /etc/default/grub
+      backrefs: yes
+      regexp: '^(GRUB_CMDLINE_LINUX=(?!.* biosdevname)\"[^\"]+)(\".*)'
+      line: '\1 biosdevname=0\2'
+    notify:
+    - Update Grub2 config file
+
+  - name: Check if parameter biosdevname has "0" value
+    replace:
+      path: /etc/default/grub
+      regexp: '^(GRUB_CMDLINE_LINUX=(?:(?![" ]{{ option | regex_escape }}=).)*)(?:[" ]{{ option | regex_escape }}=\S+)?(.*")$'
+      replace: '\1 {{ option }}={{ value }}\2'
+    vars:
+      option: biosdevname
+      value: 0
+    notify:
+    - Update Grub2 config file
+
+  handlers:
+  - name: Update Grub2 config file
+    shell: grub2-mkconfig -o /etc/default/grub
+...

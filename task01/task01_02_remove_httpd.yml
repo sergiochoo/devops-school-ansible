@@ -1,0 +1,35 @@
+---
+- name: Remove Apache web server & configure firewall
+  hosts: control.example.com
+
+  vars:
+    web_page: /var/www/html/index.html
+
+  tasks:
+  - name: Remove Apache web server
+    yum:
+      name: httpd
+      state: absent
+  
+  - name: Remove web page file
+    ansible.builtin.file:
+      path: "{{ web_page }}"
+      state: absent
+
+  - name: Check whether FirewallD service started
+    service:
+      name: firewalld
+      state: started
+      enabled: yes
+
+  - name: Remove port from firewalld rules
+    firewalld:
+      port: 80/tcp
+      permanent: yes
+      state: disabled
+
+  - name: Restart firewalld service 
+    service:
+      name: firewalld
+      state: restarted
+...
