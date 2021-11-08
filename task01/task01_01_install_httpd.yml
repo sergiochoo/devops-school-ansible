@@ -19,6 +19,8 @@
       src: "{{ source_file }}"
       dest: "{{ dest_file }}"
       mode: 0644
+    notify:
+    - Restart Apache
 
   - name: Start Apache and enable it on the every boot
     service:
@@ -37,15 +39,17 @@
       port: 80/tcp
       permanent: yes
       state: enabled
-
-  - name: Restart firewalld service 
-    service:
-      name: firewalld
-      state: restarted
+    notify:
+    - Restart firewalld service
 
   handlers:
   - name: Restart Apache
     service:
       name: httpd
+      state: restarted
+  
+  - name: Restart firewalld service 
+    service:
+      name: firewalld
       state: restarted
 ...
