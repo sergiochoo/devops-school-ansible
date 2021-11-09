@@ -1,0 +1,24 @@
+---
+- name: Create New Users
+  hosts: control.example.com
+  gather_facts: false
+  vars_files:
+    - secret.yml
+  tasks:
+    - name: Create Users
+      user:
+        name: "{{ item }}"
+        password: "{{ pwd | password_hash('sha512') }}"
+        shell: /bin/bash
+        comment: "{{ item }}@example.com"
+        # To make the playbook idempotent, we can set update_password: on_create.
+        # This will only set the password for newly created users.
+        update_password: on_create
+        # Also, there is a condition to set homedir in the task02, but it's not necessary
+        # because ansible user module create a folder in a default directory.
+        home: "/home/{{ item }}"
+      loop:
+        - Alice
+        - Bob
+        - Carol
+...
