@@ -1,0 +1,33 @@
+---
+- name: Install Apache web server
+  yum:
+    name: "{{ version }}"
+    state: present
+  
+- name: Copy web page
+  template: 
+    src: index.html.j2
+    dest: "{{ dest_dir }}/index.html"
+    mode: 0644
+  notify:
+  - Restart Apache
+
+- name: Start Apache and enable it on the every boot
+  service:
+    name: httpd
+    state: started
+    enabled: yes
+
+- name: Start FirewallD service
+  service:
+    name: firewalld
+    state: started
+    enabled: yes
+
+- name: Add port to firewalld
+  firewalld:
+    port: 80/tcp
+    permanent: yes
+    state: enabled
+  notify:
+  - Restart firewalld service

@@ -1,0 +1,7 @@
+---
+- hosts: node1.example.com
+  become: true
+  roles:
+    - vsftpd
+  vars:
+    version: vsftpd = 3.0.3

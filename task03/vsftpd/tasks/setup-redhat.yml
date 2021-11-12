@@ -1,0 +1,56 @@
+---
+- name: Install vsftpd
+  yum:
+    name: "{{ version }}"
+    state: present
+
+- name: Start vsftpd and enable it on the every boot
+  service:
+    name: vsftpd
+    state: started
+    enabled: yes
+
+- name: Use template for configuring vsftpd
+  template:
+    src: vsftpd.j2
+    dest: /etc/vsftpd/vsftpd.conf
+    mode: 0644
+  notify:
+  - Restart vsftpd service
+
+- name: Add necessary ports to firewalld rule
+  firewalld:
+    port: "{{ item }}" # We can use "service: ftp" but I wanted to show you my loops :)
+    permanent: yes
+    state: enabled
+  loop:
+  - 20/tcp
+  - 21/tcp
+  - 22/tcp
+  - 990/tcp
+  - 40000-50000/tcp
+  notify:
+  - Restart firewalld service
+
+- name: Install required selinux tools
+  yum:
+    name: python3-policycoreutils
+    state: present
+- name: Create a directory if it does not exist and set 777 permissions
+  file:
+    path: /var/ftp/pub/upload
+    state: directory
+    mode: '0777'
+- name: Set selinux boolean
+  seboolean:
+    name: ftpd_anon_write
+    state: yes
+    persistent: yes
+- name: Manage selinux settings
+  sefcontext:
+    target: /var/ftp/pub/upload
+    setype: public_content_rw_t
+    state: present
+  notify:
+    - Run restorecon
+...
