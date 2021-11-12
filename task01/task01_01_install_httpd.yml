@@ -1,5 +1,6 @@
 ---
 - name: Deploy simple web page & Setup firewall
+  hosts: all
 
   vars:
     source_file: ./web-page/index.html
