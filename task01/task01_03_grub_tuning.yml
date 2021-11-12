@@ -1,6 +1,5 @@
 ---
 - name: Tune Grub config and write changes.
-  hosts: control.example.com
 
   tasks:
   - name: Add parameter net.ifnames=0 if it's absent

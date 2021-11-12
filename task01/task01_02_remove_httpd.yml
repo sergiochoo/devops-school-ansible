@@ -1,6 +1,5 @@
 ---
 - name: Remove Apache web server & configure firewall
-  hosts: control.example.com
 
   vars:
     web_page: /var/www/html/index.html
